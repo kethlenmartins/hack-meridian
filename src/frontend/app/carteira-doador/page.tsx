@@ -92,7 +92,7 @@ export default function DonorWalletPage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
             {donorType === "investment" ? (
               <>
                 <Card className="border-green-200 bg-white/70">
@@ -164,28 +164,6 @@ export default function DonorWalletPage() {
 
                 <Card className="border-green-200 bg-white/70">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-green-700">Projetos Apoiados</CardTitle>
-                    <Sprout className="h-4 w-4 text-emerald-600" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-emerald-600">{walletData.projectsSupported}</div>
-                    <p className="text-xs text-green-500">Famílias beneficiadas</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-green-200 bg-white/70">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-green-700">Impacto Social</CardTitle>
-                    <BarChart3 className="h-4 w-4 text-green-600" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-800">Alto</div>
-                    <p className="text-xs text-green-500">Transformando vidas</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-green-200 bg-white/70">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-green-700">Ranking</CardTitle>
                     <ArrowUpRight className="h-4 w-4 text-green-600" />
                   </CardHeader>
@@ -199,7 +177,7 @@ export default function DonorWalletPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 mb-8">
             <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
               <Link href="/depositar">
                 <Plus className="mr-2 h-5 w-5" />
@@ -252,15 +230,12 @@ export default function DonorWalletPage() {
 
           {/* Tabs Section */}
           <Tabs defaultValue="transactions" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 bg-green-100">
+            <TabsList className="grid w-full grid-cols-1 bg-green-100">
               <TabsTrigger
                 value="transactions"
                 className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
               >
                 Transações Recentes
-              </TabsTrigger>
-              <TabsTrigger value="impact" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
-                Impacto dos Projetos
               </TabsTrigger>
             </TabsList>
 
@@ -323,66 +298,6 @@ export default function DonorWalletPage() {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-
-            <TabsContent value="impact">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="border-green-200 bg-white/70">
-                  <CardHeader>
-                    <CardTitle className="text-green-800">Projetos em Andamento</CardTitle>
-                    <CardDescription className="text-green-600">
-                      Acompanhe o progresso dos projetos que você apoia
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {[
-                      { name: "Cultivo de Hortaliças Orgânicas", progress: 85, location: "São Paulo" },
-                      { name: "Criação de Gado Leiteiro", progress: 62, location: "Minas Gerais" },
-                      { name: "Plantio de Café Sustentável", progress: 43, location: "Espírito Santo" },
-                    ].map((project, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-sm text-green-800">{project.name}</p>
-                            <p className="text-xs text-green-600">{project.location}</p>
-                          </div>
-                          <Badge variant="outline" className="border-green-300 text-green-700">
-                            {project.progress}%
-                          </Badge>
-                        </div>
-                        <Progress value={project.progress} className="h-2" />
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card className="border-green-200 bg-white/70">
-                  <CardHeader>
-                    <CardTitle className="text-green-800">Impacto Social</CardTitle>
-                    <CardDescription className="text-green-600">O resultado das suas contribuições</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                        <div className="text-2xl font-bold text-green-700">24</div>
-                        <p className="text-xs text-green-600">Famílias Beneficiadas</p>
-                      </div>
-                      <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                        <div className="text-2xl font-bold text-emerald-700">156</div>
-                        <p className="text-xs text-emerald-600">Hectares Cultivados</p>
-                      </div>
-                      <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                        <div className="text-2xl font-bold text-green-700">89%</div>
-                        <p className="text-xs text-green-600">Taxa de Sucesso</p>
-                      </div>
-                      <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                        <div className="text-2xl font-bold text-emerald-700">R$ 45k</div>
-                        <p className="text-xs text-emerald-600">Renda Gerada</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
             </TabsContent>
           </Tabs>
         </div>

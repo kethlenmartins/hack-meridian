@@ -28,14 +28,14 @@ export default function LandingPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[url('/bg.png')] bg-cover bg-center">
         <div className="container mx-auto text-center">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
-              Conectando <span className="text-primary">Investidores</span> com{" "}
-              <span className="text-accent">Agricultores</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-balance">
+              Conectando <span className="text-green-300">Investidores</span> com{" "}
+              <span className="text-yellow-400">Agricultores</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 text-pretty">
+            <p className="text-xl text-white mb-8 text-pretty">
               Apoie a agricultura familiar brasileira através de doações ou investimentos seguros. Transparência total,
               impacto real.
             </p>
@@ -47,7 +47,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href="/cadastro-agricultor">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent">
+                <Button size="lg" variant="outline" className="text-white w-full sm:w-auto bg-transparent">
                   <Sprout className="mr-2 h-5 w-5" />
                   Quero Captar
                 </Button>
@@ -148,7 +148,7 @@ export default function LandingPage() {
             <p className="text-muted-foreground">Maiores contribuidores da plataforma</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
