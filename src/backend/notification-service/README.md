@@ -17,8 +17,7 @@ Serviço responsável pelo envio de notificações por email na plataforma de in
 - **NestJS** - Framework Node.js
 - **TypeScript** - Linguagem de programação
 - **Supabase** - Banco de dados
-- **Nodemailer** - Envio de emails
-- **Handlebars** - Templates de email
+- **EmailJS** - Envio de emails simplificado
 - **Swagger** - Documentação da API
 
 ## Configuração
@@ -35,7 +34,7 @@ cp env.example .env
 
 3. Configure as variáveis no arquivo `.env`:
    - `SUPABASE_URL` e `SUPABASE_ANON_KEY` para o banco de dados
-   - `SMTP_*` para configuração do servidor de email
+   - `EMAILJS_*` para configuração do EmailJS
    - `JWT_SECRET` para autenticação
 
 4. Execute o serviço:

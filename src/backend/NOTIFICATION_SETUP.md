@@ -1,57 +1,60 @@
 # 📧 Configuração do Notification Service
 
-Este guia explica como configurar o serviço de notificações para envio de emails.
+Este guia explica como configurar o serviço de notificações para envio de emails usando EmailJS.
 
 ## 🔧 Configuração Inicial
 
-### 1. Configurar SMTP
+### 1. Configurar EmailJS
 
-O notification-service precisa de credenciais SMTP para enviar emails. Configure as seguintes variáveis no arquivo `.env`:
+O notification-service usa EmailJS para envio simplificado de emails. Configure as seguintes variáveis no arquivo `.env`:
 
 ```env
-# SMTP Configuration
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM=noreply@farminvestment.com
+# EmailJS Configuration
+EMAILJS_PUBLIC_KEY=COfady7bphtUFGdT5
+EMAILJS_SERVICE_ID=service_1p4rzqo
+EMAILJS_TEMPLATE_ID=template_eqx6y92
 ```
 
-### 2. Configurar Gmail (Recomendado)
+### 2. Configurar Conta EmailJS
 
-Para usar Gmail como provedor SMTP:
+1. **Crie uma conta no EmailJS**:
+   - Acesse [EmailJS](https://www.emailjs.com/)
+   - Registre-se para obter uma conta gratuita
 
-1. **Ative a verificação em 2 etapas** na sua conta Google
-2. **Gere uma senha de app**:
-   - Vá para [Conta Google](https://myaccount.google.com/)
-   - Segurança → Verificação em duas etapas → Senhas de app
-   - Gere uma senha para "Mail"
-   - Use essa senha no campo `SMTP_PASS`
+2. **Configure um serviço de email**:
+   - No painel do EmailJS, vá para "Email Services"
+   - Clique em "Add New Service"
+   - Selecione seu provedor de email (Gmail, Outlook, etc.)
+   - Siga as instruções para conectar sua conta
 
-### 3. Outros Provedores SMTP
+3. **Crie um template de email**:
+   - Vá para "Email Templates"
+   - Clique em "Create New Template"
+   - Configure o template com placeholders:
+     - `{{to_name}}` - Nome do destinatário
+     - `{{from_name}}` - Nome do remetente
+     - `{{subject}}` - Assunto do email
+     - `{{message}}` - Conteúdo da mensagem
 
-#### SendGrid
-```env
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASS=your_sendgrid_api_key
-```
+4. **Obtenha as credenciais**:
+   - **Public Key**: Encontre em "Account" → "General"
+   - **Service ID**: Encontre em "Email Services"
+   - **Template ID**: Encontre em "Email Templates"
 
-#### Mailgun
-```env
-SMTP_HOST=smtp.mailgun.org
-SMTP_PORT=587
-SMTP_USER=your_mailgun_username
-SMTP_PASS=your_mailgun_password
-```
+### 3. Exemplo de Template
 
-#### Amazon SES
-```env
-SMTP_HOST=email-smtp.us-east-1.amazonaws.com
-SMTP_PORT=587
-SMTP_USER=your_ses_username
-SMTP_PASS=your_ses_password
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{subject}}</title>
+</head>
+<body>
+    <h2>Olá {{to_name}}!</h2>
+    <p>{{message}}</p>
+    <p>Atenciosamente,<br>{{from_name}}</p>
+</body>
+</html>
 ```
 
 ## 🗄️ Configuração do Banco de Dados
@@ -103,9 +106,14 @@ Resposta esperada:
 }
 ```
 
-### 2. Enviar Notificação de Teste
+### 2. Testar Configuração EmailJS
 
 ```bash
+# Teste direto do EmailJS (sem iniciar o serviço)
+cd notification-service
+npm run test:email
+
+# Ou teste via API (com serviço rodando)
 curl -X POST http://localhost:3003/notifications \
   -H "Content-Type: application/json" \
   -d '{
@@ -170,9 +178,9 @@ docker compose logs notification-service | grep ERROR
 
 ### Problemas Comuns
 
-1. **Erro de autenticação SMTP**
-   - Verifique as credenciais no arquivo `.env`
-   - Para Gmail, use senha de app, não a senha da conta
+1. **Erro de configuração EmailJS**
+   - Verifique se `EMAILJS_PUBLIC_KEY`, `EMAILJS_SERVICE_ID` e `EMAILJS_TEMPLATE_ID` estão configurados
+   - Confirme se as credenciais estão corretas no painel do EmailJS
 
 2. **Erro de conexão com banco**
    - Verifique `SUPABASE_URL` e `SUPABASE_ANON_KEY`
@@ -180,8 +188,13 @@ docker compose logs notification-service | grep ERROR
 
 3. **Emails não sendo enviados**
    - Verifique os logs do serviço
-   - Teste a conectividade SMTP
+   - Confirme se o template está configurado corretamente no EmailJS
+   - Verifique se o serviço de email está ativo no EmailJS
    - Verifique se o email de destino é válido
+
+4. **Erro de template**
+   - Verifique se os placeholders no template correspondem aos enviados
+   - Confirme se o template está publicado no EmailJS
 
 ### Logs de Debug
 

@@ -34,12 +34,10 @@ FARMER_SERVICE_PORT=3001
 INVESTOR_SERVICE_PORT=3002
 NOTIFICATION_SERVICE_PORT=3003
 
-# SMTP Configuration (for notification service)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM=noreply@farminvestment.com
+# EmailJS Configuration (for notification service)
+EMAILJS_PUBLIC_KEY=COfady7bphtUFGdT5
+EMAILJS_SERVICE_ID=service_1p4rzqo
+EMAILJS_TEMPLATE_ID=template_eqx6y92
 ```
 
 ### 2. Configurar Banco de Dados

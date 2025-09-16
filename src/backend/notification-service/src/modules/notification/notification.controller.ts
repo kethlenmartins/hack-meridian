@@ -40,7 +40,12 @@ export class NotificationController {
     description: 'Erro interno do servidor',
   })
   async sendNotification(@Body() sendNotificationDto: SendNotificationDto): Promise<Notification> {
-    return await this.sendNotificationUseCase.execute(sendNotificationDto);
+    return await this.sendNotificationUseCase.execute({
+      recipientEmail: sendNotificationDto.recipientEmail,
+      subject: sendNotificationDto.subject,
+      content: sendNotificationDto.content,
+      type: sendNotificationDto.type as any,
+    });
   }
 
   @Get()

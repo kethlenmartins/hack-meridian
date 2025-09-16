@@ -8,6 +8,8 @@ export enum NotificationType {
   EMAIL = 'email',
 }
 
+import { randomUUID } from 'crypto';
+
 export class Notification {
   constructor(
     public readonly id: string,
@@ -28,7 +30,7 @@ export class Notification {
     type: NotificationType = NotificationType.EMAIL,
   ): Notification {
     return new Notification(
-      crypto.randomUUID(),
+      randomUUID(),
       recipientEmail,
       subject,
       content,

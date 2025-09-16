@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Notification, NotificationType } from '../../entities/notification.entity';
 import { NotificationRepository } from '../../repositories/notification.repository';
 import { EmailService } from '../../../infrastructure/email/email.service';
@@ -13,6 +13,7 @@ export interface SendNotificationRequest {
 @Injectable()
 export class SendNotificationUseCase {
   constructor(
+    @Inject('NotificationRepository')
     private readonly notificationRepository: NotificationRepository,
     private readonly emailService: EmailService,
   ) {}
@@ -32,8 +33,10 @@ export class SendNotificationUseCase {
       // Envia o email
       await this.emailService.sendEmail({
         to: request.recipientEmail,
+        toName: request.recipientEmail.split('@')[0],
         subject: request.subject,
         content: request.content,
+        fromName: 'Farm Investment Platform',
       });
 
       // Marca como enviada
