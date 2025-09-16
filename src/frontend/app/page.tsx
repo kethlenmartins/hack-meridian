@@ -59,7 +59,7 @@ export default function LandingPage() {
 
       {/* How it Works */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted">
-        <div className="container mx-auto">
+        <div className="container mx-auto" id="como-funciona">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Como Funciona</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -102,7 +102,7 @@ export default function LandingPage() {
       </section>
 
       {/* Top Farmers */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 px-4 sm:px-6 lg:px-8" id="ranking">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">TOP Agricultores</h2>

@@ -20,7 +20,7 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Plataforma</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/como-funciona" className="text-muted-foreground hover:text-foreground">
+                <Link href="#como-funciona" className="text-muted-foreground hover:text-foreground">
                   Como Funciona
                 </Link>
               </li>

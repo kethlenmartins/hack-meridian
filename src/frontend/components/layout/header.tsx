@@ -19,14 +19,11 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/como-funciona" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="#como-funciona" className="text-muted-foreground hover:text-foreground transition-colors">
               Como Funciona
             </Link>
-            <Link href="/sobre" className="text-muted-foreground hover:text-foreground transition-colors">
-              Sobre
-            </Link>
-            <Link href="/contato" className="text-muted-foreground hover:text-foreground transition-colors">
-              Contato
+            <Link href="#contato" className="text-muted-foreground hover:text-foreground transition-colors">
+              Ranking
             </Link>
           </nav>
 
@@ -52,7 +49,7 @@ export function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
-              <Link href="/como-funciona" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#como-funciona" className="text-muted-foreground hover:text-foreground transition-colors">
                 Como Funciona
               </Link>
               <Link href="/sobre" className="text-muted-foreground hover:text-foreground transition-colors">
