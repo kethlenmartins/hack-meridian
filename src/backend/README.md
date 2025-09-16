@@ -1,11 +1,12 @@
 # Farm Investment Platform Backend Services
 
-Este projeto contém dois serviços NestJS separados para a plataforma de investimento agrícola, integrados com Supabase e PostgreSQL.
+Este projeto contém três serviços NestJS separados para a plataforma de investimento agrícola, integrados com Supabase e PostgreSQL.
 
 ## 🏗️ Arquitetura
 
 - **farmer-service**: Serviço de gerenciamento de agricultores, fazendas, culturas e upload de arquivos
 - **investor-service**: Serviço de gerenciamento de investidores e investimentos
+- **notification-service**: Serviço de envio de notificações por email
 - **PostgreSQL**: Banco de dados Supabase para produção
 - **Docker Compose**: Orquestração de todos os serviços
 
@@ -31,6 +32,14 @@ JWT_SECRET=your_jwt_secret_here
 # Service Ports
 FARMER_SERVICE_PORT=3001
 INVESTOR_SERVICE_PORT=3002
+NOTIFICATION_SERVICE_PORT=3003
+
+# SMTP Configuration (for notification service)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+SMTP_FROM=noreply@farminvestment.com
 ```
 
 ### 2. Configurar Banco de Dados
@@ -45,14 +54,18 @@ INVESTOR_SERVICE_PORT=3002
 ### 3. Executar com Docker Compose
 
 ```bash
+# Opção 1: Usar o script automatizado
+./start-all-services.sh
+
+# Opção 2: Comandos manuais
 # Subir todos os serviços
-docker-compose up -d
+docker compose up -d
 
 # Ver logs
-docker-compose logs -f
+docker compose logs -f
 
 # Parar serviços
-docker-compose down
+docker compose down
 ```
 
 ### 4. Executar em Desenvolvimento
@@ -69,6 +82,10 @@ npm run start:dev
 # Executar investor-service (em outro terminal)
 cd investor-service
 npm run start:dev
+
+# Executar notification-service (em outro terminal)
+cd notification-service
+npm run start:dev
 ```
 
 ## 📚 Documentação da API
@@ -77,6 +94,7 @@ Após iniciar os serviços, acesse:
 
 - **Farmer Service**: http://localhost:3001/api/docs
 - **Investor Service**: http://localhost:3002/api/docs
+- **Notification Service**: http://localhost:3003/api/docs
 
 ## 🔧 Endpoints Principais
 
@@ -100,6 +118,12 @@ Após iniciar os serviços, acesse:
 - `GET /portfolios` - Listar portfólios
 - `GET /health` - Health check
 
+### Notification Service (Porta 3003)
+
+- `POST /notifications` - Enviar notificação por email
+- `GET /notifications` - Listar notificações
+- `GET /health` - Health check
+
 ## 🔐 Autenticação
 
 O sistema usa JWT para autenticação. Para usar os endpoints protegidos:
@@ -121,6 +145,14 @@ backend/
 │   ├── Dockerfile
 │   └── package.json
 ├── investor-service/      # Serviço de investidores
+│   ├── src/
+│   │   ├── domain/        # Entidades e regras de negócio
+│   │   ├── application/   # DTOs e casos de uso
+│   │   ├── infrastructure/ # Repositórios e serviços externos
+│   │   └── modules/       # Módulos NestJS
+│   ├── Dockerfile
+│   └── package.json
+├── notification-service/  # Serviço de notificações
 │   ├── src/
 │   │   ├── domain/        # Entidades e regras de negócio
 │   │   ├── application/   # DTOs e casos de uso

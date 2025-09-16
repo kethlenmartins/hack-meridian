@@ -37,6 +37,29 @@ services:
     networks:
       - farm-investment-network
 
+  # Serviço de Notificações
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: farm-investment-notification-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    ports:
+      - "3003:3003"
+    networks:
+      - farm-investment-network
+
 networks:
   farm-investment-network:
     driver: bridge
