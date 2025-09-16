@@ -1,6 +1,6 @@
 # Hack-meridian
 <div style="background-color: white; padding: 10px;">>
-    <img src="assets/imagem_meridian.svg" alt="Diagram"  width="400" style="display: block; margin: auto;" />
+    <img src="assets/imagem_meridian.png" alt="Diagram"  width="400" style="display: block; margin: auto;" />
 </div>
 
 ### Group
