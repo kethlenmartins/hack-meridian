@@ -76,7 +76,7 @@ How it works:
 
 ```bash
 # Clone the repository
-git clone https://github.com/kethlenmartins/hackaledger
+git clone https://github.com/kethlenmartins/hack-meridian
 
 # Go to the folder
 cd HACK-MERIDIAN
@@ -157,7 +157,7 @@ Como funciona:
 
 ```bash
 # Clone o repositório
-git clone https://github.com/kethlenmartins/hackaledger
+git clone https://github.com/kethlenmartins/hack-meridian
 
 # Acesse a pasta
 cd HACK-MERIDIAN
