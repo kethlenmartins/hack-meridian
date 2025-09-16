@@ -27,9 +27,13 @@ import { RouteGuard } from "@/components/auth/route-guard"
 import BoletoModal from "@/components/modals/boleto-modal"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import WalletService, { type Farmer, type Transaction, type Installment } from "@/lib/wallet-service"
 
 export default function FarmerWalletPage() {
   const [userType, setUserType] = useState<string | null>(null)
+  const [farmer, setFarmer] = useState<Farmer | null>(null)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [installments, setInstallments] = useState<Installment[]>([])
   const [boletoModal, setBoletoModal] = useState<{
     isOpen: boolean
     invoice?: any
@@ -40,95 +44,17 @@ export default function FarmerWalletPage() {
   })
   const router = useRouter()
 
-  // Mock data
-  const walletData = {
-    availableBalance: 45000,
-    totalDebt: 52000,
-    originalAmount: 50000,
-    interestRate: 4,
-    monthlyPayment: 2167,
-    paidAmount: 8668,
-    remainingAmount: 43332,
-    nextPaymentDate: "2024-02-15",
-    fundingProgress: 90,
-    remainingMonths: 24,
+  // Load farmer data
+  const loadFarmerData = () => {
+    // For demo purposes, we'll use farmer_001
+    const currentFarmer = WalletService.getFarmer("farmer_001")
+    if (currentFarmer) {
+      setFarmer(currentFarmer)
+      setTransactions(WalletService.getFarmerTransactions("farmer_001", 10))
+      setInstallments(currentFarmer.installments)
+    }
   }
 
-  const recentTransactions = [
-    {
-      id: 1,
-      type: "withdrawal",
-      amount: 5000,
-      date: "2024-01-15",
-      status: "completed",
-      description: "Saque para conta corrente",
-      reference: "SAQ001234",
-    },
-    {
-      id: 2,
-      type: "payment",
-      amount: 2167,
-      date: "2024-01-10",
-      status: "completed",
-      description: "Pagamento parcela #6",
-      reference: "PAG001235",
-    },
-    {
-      id: 3,
-      type: "funding",
-      amount: 10000,
-      date: "2024-01-05",
-      status: "completed",
-      description: "Financiamento recebido - Investidor João Silva",
-      reference: "FIN001236",
-    },
-    {
-      id: 4,
-      type: "payment",
-      amount: 2167,
-      date: "2023-12-10",
-      status: "completed",
-      description: "Pagamento parcela #5",
-      reference: "PAG001237",
-    },
-    {
-      id: 5,
-      type: "funding",
-      amount: 15000,
-      date: "2023-12-01",
-      status: "completed",
-      description: "Doação recebida - Maria Santos",
-      reference: "DOA001238",
-    },
-    {
-      id: 6,
-      type: "withdrawal",
-      amount: 8000,
-      date: "2023-11-20",
-      status: "completed",
-      description: "Saque para compra de equipamentos",
-      reference: "SAQ001239",
-    },
-  ]
-
-  const upcomingPayments = [
-    {
-      id: 1,
-      amount: 2167,
-      dueDate: "2024-01-15",
-      principal: 2000,
-      interest: 167,
-      status: "pending",
-    },
-    {
-      id: 2,
-      amount: 2167,
-      dueDate: "2024-02-15",
-      principal: 2000,
-      interest: 167,
-      status: "pending",
-    },
-  ]
 
   useEffect(() => {
     const storedUserType = localStorage.getItem("userType")
@@ -139,7 +65,26 @@ export default function FarmerWalletPage() {
     }
 
     setUserType(storedUserType)
+    loadFarmerData()
   }, [router])
+
+  // Refresh data when component mounts or when coming back from other pages
+  useEffect(() => {
+    if (userType === "farmer") {
+      loadFarmerData()
+    }
+  }, [userType])
+
+  // Auto-refresh data every 30 seconds to simulate real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (userType === "farmer") {
+        loadFarmerData()
+      }
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [userType])
 
   const handleGenerateBoleto = (invoice: any) => {
     setBoletoModal({
@@ -161,7 +106,7 @@ export default function FarmerWalletPage() {
     router.push("/")
   }
 
-  if (!userType) {
+  if (!userType || !farmer) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center text-green-700">Carregando...</div>
@@ -169,7 +114,9 @@ export default function FarmerWalletPage() {
     )
   }
 
-  const debtProgress = (walletData.paidAmount / walletData.totalDebt) * 100
+  const walletData = farmer.wallet
+  const debtProgress = walletData.totalDebt > 0 ? (walletData.paidAmount / walletData.totalDebt) * 100 : 0
+  const upcomingPayments = installments.filter(i => i.status === 'pending').slice(0, 2)
 
   return (
     <RouteGuard allowedUserTypes={["farmer"]}>
@@ -209,7 +156,7 @@ export default function FarmerWalletPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
-                  R$ {walletData.availableBalance.toLocaleString()}
+                  R$ {walletData.balance.toLocaleString()}
                 </div>
                 <p className="text-xs text-green-500">Disponível para saque</p>
               </CardContent>
@@ -339,7 +286,7 @@ export default function FarmerWalletPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentTransactions.map((transaction) => (
+                    {transactions.map((transaction) => (
                       <div
                         key={transaction.id}
                         className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-white/50"
@@ -351,15 +298,19 @@ export default function FarmerWalletPage() {
                                 ? "bg-blue-100"
                                 : transaction.type === "payment"
                                   ? "bg-red-100"
-                                  : "bg-green-100"
+                                  : transaction.type === "donation"
+                                    ? "bg-green-100"
+                                    : "bg-emerald-100"
                             }`}
                           >
                             {transaction.type === "withdrawal" ? (
                               <Download className="h-5 w-5 text-blue-600" />
                             ) : transaction.type === "payment" ? (
                               <ArrowUpRight className="h-5 w-5 text-red-600" />
-                            ) : (
+                            ) : transaction.type === "donation" ? (
                               <ArrowDownRight className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <ArrowDownRight className="h-5 w-5 text-emerald-600" />
                             )}
                           </div>
                           <div>
@@ -372,24 +323,27 @@ export default function FarmerWalletPage() {
                         <div className="text-right">
                           <p
                             className={`font-medium ${
-                              transaction.type === "funding"
+                              transaction.type === "donation" || transaction.type === "funding"
                                 ? "text-green-600"
                                 : transaction.type === "withdrawal"
                                   ? "text-blue-600"
                                   : "text-red-600"
                             }`}
                           >
-                            {transaction.type === "funding" ? "+" : "-"}R$ {transaction.amount.toLocaleString()}
+                            {transaction.type === "donation" || transaction.type === "funding" ? "+" : "-"}R$ {transaction.amount.toLocaleString()}
                           </p>
                           <Badge
                             variant="secondary"
                             className={`text-xs ${
                               transaction.status === "completed"
                                 ? "bg-green-100 text-green-700 border-green-300"
-                                : "bg-yellow-100 text-yellow-700 border-yellow-300"
+                                : transaction.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-700 border-yellow-300"
+                                  : "bg-red-100 text-red-700 border-red-300"
                             }`}
                           >
-                            {transaction.status === "completed" ? "Concluído" : "Pendente"}
+                            {transaction.status === "completed" ? "Concluído" : 
+                             transaction.status === "pending" ? "Pendente" : "Falhou"}
                           </Badge>
                         </div>
                       </div>
@@ -483,8 +437,7 @@ export default function FarmerWalletPage() {
                     <div>
                       <Label className="text-sm font-medium text-green-700">Descrição do Projeto</Label>
                       <p className="text-sm text-green-600 mt-1">
-                        {localStorage.getItem("projectDescription") ||
-                          "Cultivo de hortaliças orgânicas para comercialização local, incluindo sistema de irrigação por gotejamento, estufa climatizada e equipamentos agrícolas modernos para aumentar a produtividade."}
+                        {walletData.projectDescription}
                       </p>
                     </div>
 
@@ -492,7 +445,7 @@ export default function FarmerWalletPage() {
                       <div>
                         <Label className="text-sm font-medium text-green-700">Valor Solicitado</Label>
                         <p className="text-lg font-bold text-green-600">
-                          R$ {localStorage.getItem("requestedAmount") || "60.000"}
+                          R$ {walletData.requestedAmount.toLocaleString()}
                         </p>
                       </div>
                       <div>
@@ -515,13 +468,13 @@ export default function FarmerWalletPage() {
                     <div>
                       <Label className="text-sm font-medium text-green-700">Localização</Label>
                       <p className="text-sm text-green-600 mt-1">
-                        {localStorage.getItem("farmerLocation") || "Zona Rural, Município de São João do Campo - SP"}
+                        {farmer.location}
                       </p>
                     </div>
 
                     <div>
                       <Label className="text-sm font-medium text-green-700">Área Cultivada</Label>
-                      <p className="text-sm text-green-600 mt-1">2,5 hectares</p>
+                      <p className="text-sm text-green-600 mt-1">{walletData.projectArea}</p>
                     </div>
                   </CardContent>
                 </Card>

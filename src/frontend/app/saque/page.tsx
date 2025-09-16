@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { Wallet, ArrowLeft, Building, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import WalletService, { type Farmer } from "@/lib/wallet-service"
 
 export default function SaquePage() {
   const [formData, setFormData] = useState({
@@ -23,13 +24,38 @@ export default function SaquePage() {
     accountType: "checking",
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [farmer, setFarmer] = useState<Farmer | null>(null)
   const router = useRouter()
   const { toast } = useToast()
 
-  const availableBalance = 45000 // Mock available balance
+  // Load farmer data
+  useEffect(() => {
+    const currentFarmer = WalletService.getFarmer("farmer_001")
+    if (currentFarmer) {
+      setFarmer(currentFarmer)
+    } else {
+      toast({
+        title: "Erro",
+        description: "Dados do agricultor não encontrados.",
+        variant: "destructive",
+      })
+      router.push("/carteira-agricultor")
+    }
+  }, [router, toast])
+
+  const availableBalance = farmer?.wallet.balance || 0
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!farmer) {
+      toast({
+        title: "Erro",
+        description: "Dados do agricultor não carregados.",
+        variant: "destructive",
+      })
+      return
+    }
 
     const amount = Number.parseFloat(formData.amount)
 
@@ -51,18 +77,43 @@ export default function SaquePage() {
       return
     }
 
+    if (!formData.bank || !formData.agency || !formData.account) {
+      toast({
+        title: "Dados bancários incompletos",
+        description: "Preencha todos os dados bancários.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Saque solicitado com sucesso!",
-        description: `R$ ${amount.toLocaleString()} será transferido em até 2 dias úteis.`,
-      })
+    try {
+      // Create bank account string
+      const bankName = banks.find(b => b.value === formData.bank)?.label || formData.bank
+      const bankAccount = `${bankName} - Ag: ${formData.agency} ${formData.accountType === 'checking' ? 'Cc' : 'Cp'}: ${formData.account}`
 
-      router.push("/carteira-agricultor")
+      // Process withdrawal
+      const success = WalletService.processWithdrawal("farmer_001", amount, bankAccount)
+      
+      if (success) {
+        toast({
+          title: "Saque solicitado com sucesso!",
+          description: `R$ ${amount.toLocaleString()} será transferido em até 2 dias úteis.`,
+        })
+        router.push("/carteira-agricultor")
+      } else {
+        throw new Error("Falha ao processar saque")
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao processar saque",
+        description: error instanceof Error ? error.message : "Erro desconhecido.",
+        variant: "destructive",
+      })
+    } finally {
       setIsLoading(false)
-    }, 2000)
+    }
   }
 
   const banks = [

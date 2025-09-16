@@ -10,16 +10,35 @@ import { ArrowLeft, Heart, Shield, CheckCircle, Sprout } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { RouteGuard } from "@/components/auth/route-guard"
+import WalletService, { type Donor, type Farmer } from "@/lib/wallet-service"
+import { useToast } from "@/hooks/use-toast"
 
 export default function DonatePage() {
   const [userType, setUserType] = useState<string | null>(null)
   const [amount, setAmount] = useState([1000])
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [donor, setDonor] = useState<Donor | null>(null)
+  const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null)
   const router = useRouter()
+  const { toast } = useToast()
 
-  // Mock available balance
-  const availableBalance = 5000
+  // Load donor data
+  useEffect(() => {
+    const currentDonor = WalletService.getDonor("donor_001")
+    if (currentDonor) {
+      setDonor(currentDonor)
+    }
+    
+    // Select a random farmer to receive the donation
+    const farmers = WalletService.getAllFarmers()
+    if (farmers.length > 0) {
+      const randomFarmer = farmers[Math.floor(Math.random() * farmers.length)]
+      setSelectedFarmer(randomFarmer)
+    }
+  }, [])
+
+  const availableBalance = donor?.wallet.balance || 0
 
   useEffect(() => {
     const storedUserType = localStorage.getItem("userType")
@@ -32,14 +51,59 @@ export default function DonatePage() {
     setUserType(storedUserType)
   }, [router])
 
-  const handleDonate = () => {
+  const handleDonate = async () => {
+    if (!donor || !selectedFarmer) {
+      toast({
+        title: "Erro",
+        description: "Dados não carregados. Tente novamente.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (amount[0] > availableBalance) {
+      toast({
+        title: "Saldo insuficiente",
+        description: "Você não tem saldo suficiente para esta doação.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsProcessing(true)
 
-    // Simulate donation processing
-    setTimeout(() => {
+    try {
+      const success = WalletService.processDonation(
+        donor.id,
+        selectedFarmer.id,
+        amount[0],
+        "Doação anônima via plataforma"
+      )
+
+      if (success) {
+        // Update local donor data
+        const updatedDonor = WalletService.getDonor(donor.id)
+        if (updatedDonor) {
+          setDonor(updatedDonor)
+        }
+
+        setIsSuccess(true)
+        toast({
+          title: "Doação realizada com sucesso!",
+          description: `R$ ${amount[0].toLocaleString()} foram doados anonimamente.`,
+        })
+      } else {
+        throw new Error("Falha ao processar doação")
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao processar doação",
+        description: error instanceof Error ? error.message : "Erro desconhecido.",
+        variant: "destructive",
+      })
+    } finally {
       setIsProcessing(false)
-      setIsSuccess(true)
-    }, 2000)
+    }
   }
 
   if (isSuccess) {

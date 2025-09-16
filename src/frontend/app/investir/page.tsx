@@ -13,6 +13,8 @@ import { ArrowLeft, TrendingUp, Heart, Shield, CheckCircle, Sprout, Calculator }
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { RouteGuard } from "@/components/auth/route-guard"
+import WalletService from "@/lib/wallet-service"
+import { useToast } from "@/hooks/use-toast"
 
 export default function InvestPage() {
   const [userType, setUserType] = useState<string | null>(null)
@@ -22,9 +24,10 @@ export default function InvestPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
-  // Mock available balance
-  const availableBalance = 5000
+  // No balance concept - money goes directly to farmers
+  const maxAmount = 50000 // Maximum amount per transaction
 
   useEffect(() => {
     const storedUserType = localStorage.getItem("userType")
@@ -40,14 +43,51 @@ export default function InvestPage() {
     setActionType(storedDonorType === "investment" ? "investment" : "donation")
   }, [router])
 
-  const handleInvest = () => {
+  const handleInvest = async () => {
     setIsProcessing(true)
 
-    // Simulate investment processing
-    setTimeout(() => {
+    try {
+      if (actionType === "donation") {
+        // Process as donation
+        const success = WalletService.processDonation(
+          "donor_001", 
+          "farmer_001", 
+          amount[0], 
+          "Doação via plataforma"
+        )
+        
+        if (success) {
+          toast({
+            title: "Doação realizada!",
+            description: `R$ ${amount[0].toLocaleString()} foram doados com sucesso.`,
+          })
+          setIsSuccess(true)
+        }
+      } else {
+        // Process as investment (funding)
+        const success = WalletService.addFunding(
+          "farmer_001",
+          amount[0],
+          "Investidor da plataforma"
+        )
+        
+        if (success) {
+          toast({
+            title: "Investimento realizado!",
+            description: `R$ ${amount[0].toLocaleString()} foram investidos com sucesso.`,
+          })
+          setIsSuccess(true)
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Erro na transação",
+        description: error instanceof Error ? error.message : "Erro desconhecido.",
+        variant: "destructive",
+      })
+    } finally {
       setIsProcessing(false)
-      setIsSuccess(true)
-    }, 2000)
+    }
   }
 
   if (isSuccess) {
@@ -64,7 +104,7 @@ export default function InvestPage() {
                   {actionType === "investment" ? "Investimento Realizado!" : "Doação Realizada!"}
                 </CardTitle>
                 <CardDescription className="text-green-600">
-                  Seu dinheiro foi distribuído anonimamente para agricultores
+                  Seu dinheiro foi transferido diretamente para os agricultores
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-4">
@@ -78,14 +118,14 @@ export default function InvestPage() {
                 {actionType === "investment" && (
                   <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
                     <p className="text-sm text-emerald-600">Retorno esperado em 2 anos</p>
-                    <p className="text-xl font-bold text-emerald-700">R$ {(amount[0] * 1.21).toLocaleString()}</p>
+                    <p className="text-xl font-bold text-emerald-700">R$ {expectedReturn.toLocaleString()}</p>
                   </div>
                 )}
 
                 <Alert className="border-green-200 bg-green-50">
                   <Shield className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-sm text-green-700">
-                    O sistema fez a distribuição automática e anônima. Você pode acompanhar o impacto na sua carteira.
+                    O dinheiro foi transferido diretamente para os agricultores. Você pode acompanhar o progresso na sua carteira.
                   </AlertDescription>
                 </Alert>
 
@@ -100,8 +140,10 @@ export default function InvestPage() {
     )
   }
 
-  const expectedReturn = actionType === "investment" ? amount[0] * 1.21 : 0
-  const monthlyReturn = actionType === "investment" ? (amount[0] * 0.21) / 24 : 0
+  // Realistic returns: 8% per year over 24 months = 16% total
+  const totalReturnRate = 0.16 // 16% total return over 2 years (8% per year)
+  const expectedReturn = actionType === "investment" ? amount[0] * (1 + totalReturnRate) : 0
+  const monthlyReturn = actionType === "investment" ? (amount[0] * totalReturnRate) / 24 : 0
 
   return (
     <RouteGuard allowedUserTypes={["donor"]}>
@@ -180,7 +222,7 @@ export default function InvestPage() {
                   {actionType === "investment" ? "Valor do Investimento" : "Valor da Doação"}
                 </CardTitle>
                 <CardDescription className="text-green-600">
-                  Saldo disponível: R$ {availableBalance.toLocaleString()}
+                  O dinheiro será transferido diretamente para os agricultores
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -197,14 +239,14 @@ export default function InvestPage() {
                     <Slider
                       value={amount}
                       onValueChange={setAmount}
-                      max={availableBalance}
+                      max={maxAmount}
                       min={100}
                       step={100}
                       className="w-full"
                     />
                     <div className="flex justify-between text-xs text-green-600">
                       <span>R$ 100</span>
-                      <span>R$ {availableBalance.toLocaleString()}</span>
+                      <span>R$ {maxAmount.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -215,8 +257,8 @@ export default function InvestPage() {
                         key={value}
                         variant="outline"
                         size="sm"
-                        onClick={() => setAmount([Math.min(value, availableBalance)])}
-                        disabled={value > availableBalance}
+                        onClick={() => setAmount([Math.min(value, maxAmount)])}
+                        disabled={value > maxAmount}
                         className="border-green-300 text-green-700 hover:bg-green-50"
                       >
                         R$ {value}
@@ -228,15 +270,14 @@ export default function InvestPage() {
                 <Alert className="border-green-200 bg-green-50">
                   <Shield className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-sm text-green-700">
-                    <strong>Distribuição anônima:</strong> O sistema escolherá automaticamente os agricultores que
-                    receberão seu {actionType === "investment" ? "investimento" : "doação"}. Nem você nem eles saberão
-                    da conexão.
+                    <strong>Transferência direta:</strong> Seu dinheiro será transferido imediatamente para os agricultores selecionados. 
+                    {actionType === "investment" ? " Você receberá retornos conforme o progresso dos projetos." : " 100% do valor vai direto para quem precisa."}
                   </AlertDescription>
                 </Alert>
 
                 <Button
                   onClick={handleInvest}
-                  disabled={isProcessing || amount[0] > availableBalance}
+                  disabled={isProcessing || amount[0] > maxAmount}
                   className="w-full bg-green-600 hover:bg-green-700"
                 >
                   {isProcessing

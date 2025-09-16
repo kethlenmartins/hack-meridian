@@ -27,19 +27,19 @@ export default function DonorWalletPage() {
   const [donorType, setDonorType] = useState<string | null>(null)
   const router = useRouter()
 
-  // Mock data
+  // Mock data - no balance concept, money goes directly to farmers
   const walletData = {
     totalInvested: 25000,
-    currentReturn: 1250,
-    expectedReturn: 5000,
+    currentReturn: 1000, // 4% return so far (realistic for 6 months)
+    expectedReturn: 29000, // 25000 + 16% = 29000 (realistic 8% per year)
     totalDonated: 8000,
     projectsSupported: 12,
-    monthlyReturn: 208.33,
+    monthlyReturn: 166.67, // (25000 * 0.16) / 24 months = 166.67
   }
 
   const recentTransactions = [
     { id: 1, type: "investment", amount: 5000, date: "2024-01-15", status: "completed" },
-    { id: 2, type: "return", amount: 416.67, date: "2024-01-10", status: "completed" },
+    { id: 2, type: "return", amount: 166.67, date: "2024-01-10", status: "completed" },
     { id: 3, type: "donation", amount: 2000, date: "2024-01-05", status: "completed" },
     { id: 4, type: "investment", amount: 3000, date: "2023-12-28", status: "completed" },
   ]
@@ -128,8 +128,9 @@ export default function DonorWalletPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-800">
-                      R$ {walletData.expectedReturn.toLocaleString()}
+                      R$ {(walletData.expectedReturn - walletData.totalInvested).toLocaleString()}
                     </div>
+                    <p className="text-xs text-green-500">Retorno total esperado</p>
                   </CardContent>
                 </Card>
 
@@ -140,9 +141,10 @@ export default function DonorWalletPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-800">
-                      {((walletData.currentReturn / walletData.expectedReturn) * 100).toFixed(1)}%
+                      {((walletData.currentReturn / (walletData.expectedReturn - walletData.totalInvested)) * 100).toFixed(1)}%
                     </div>
-                    <Progress value={(walletData.currentReturn / walletData.expectedReturn) * 100} className="mt-2" />
+                    <Progress value={(walletData.currentReturn / (walletData.expectedReturn - walletData.totalInvested)) * 100} className="mt-2" />
+                    <p className="text-xs text-green-500 mt-1">Do retorno esperado</p>
                   </CardContent>
                 </Card>
               </>
@@ -177,12 +179,6 @@ export default function DonorWalletPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 mb-8">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
-              <Link href="/depositar">
-                <Plus className="mr-2 h-5 w-5" />
-                Adicionar Saldo
-              </Link>
-            </Button>
             <Button
               size="lg"
               variant="outline"

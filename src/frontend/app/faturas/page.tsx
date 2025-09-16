@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,78 +9,92 @@ import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { FileText, ArrowLeft, Calendar, DollarSign, TrendingDown } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import WalletService, { type Farmer, type Installment } from "@/lib/wallet-service"
 
 export default function FaturasPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const [farmer, setFarmer] = useState<Farmer | null>(null)
+  const [installments, setInstallments] = useState<Installment[]>([])
 
-  // Mock data for installments
-  const [installments] = useState([
-    {
-      id: 1,
-      dueDate: "2024-02-15",
-      amount: 2167,
-      interest: 167,
-      principal: 2000,
-      status: "pending",
-      overdue: false,
-    },
-    {
-      id: 2,
-      dueDate: "2024-03-15",
-      amount: 2167,
-      interest: 160,
-      principal: 2007,
-      status: "pending",
-      overdue: false,
-    },
-    {
-      id: 3,
-      dueDate: "2024-04-15",
-      amount: 2167,
-      interest: 153,
-      principal: 2014,
-      status: "pending",
-      overdue: false,
-    },
-    {
-      id: 4,
-      dueDate: "2024-01-15",
-      amount: 2167,
-      interest: 174,
-      principal: 1993,
-      status: "paid",
-      overdue: false,
-    },
-    {
-      id: 5,
-      dueDate: "2023-12-15",
-      amount: 2167,
-      interest: 181,
-      principal: 1986,
-      status: "paid",
-      overdue: false,
-    },
-  ])
+  // Load farmer data
+  useEffect(() => {
+    const currentFarmer = WalletService.getFarmer("farmer_001")
+    if (currentFarmer) {
+      setFarmer(currentFarmer)
+      setInstallments(currentFarmer.installments)
+    } else {
+      toast({
+        title: "Erro",
+        description: "Dados do agricultor não encontrados.",
+        variant: "destructive",
+      })
+      router.push("/carteira-agricultor")
+    }
+  }, [router, toast])
 
   const pendingInstallments = installments.filter((i) => i.status === "pending")
   const totalPendingAmount = pendingInstallments.reduce((sum, i) => sum + i.amount, 0)
   const totalInterestSavings = pendingInstallments.reduce((sum, i) => sum + i.interest, 0) * 0.3 // 30% savings on early payment
 
-  const handlePayInstallment = (installmentId: number) => {
-    toast({
-      title: "Redirecionando para pagamento",
-      description: "Você será direcionado para a tela de pagamento.",
-    })
-    router.push(`/pagamento?installment=${installmentId}`)
+  const handlePayInstallment = async (installmentId: number) => {
+    if (!farmer) return
+
+    try {
+      const success = WalletService.processPayment("farmer_001", installmentId)
+      
+      if (success) {
+        toast({
+          title: "Pagamento realizado com sucesso!",
+          description: `A parcela #${installmentId} foi paga.`,
+        })
+        
+        // Refresh data
+        const updatedFarmer = WalletService.getFarmer("farmer_001")
+        if (updatedFarmer) {
+          setFarmer(updatedFarmer)
+          setInstallments(updatedFarmer.installments)
+        }
+      } else {
+        throw new Error("Falha ao processar pagamento")
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao processar pagamento",
+        description: error instanceof Error ? error.message : "Erro desconhecido.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const handlePayAll = () => {
-    toast({
-      title: "Redirecionando para pagamento",
-      description: "Você será direcionado para quitar todas as parcelas.",
-    })
-    router.push("/pagamento?type=all")
+  const handlePayAll = async () => {
+    if (!farmer) return
+
+    try {
+      const result = WalletService.processAllPayments("farmer_001")
+      
+      if (result.success) {
+        toast({
+          title: "Pagamento antecipado realizado!",
+          description: `Todas as parcelas foram quitadas. Economia de R$ ${result.savings.toLocaleString()}.`,
+        })
+        
+        // Refresh data
+        const updatedFarmer = WalletService.getFarmer("farmer_001")
+        if (updatedFarmer) {
+          setFarmer(updatedFarmer)
+          setInstallments(updatedFarmer.installments)
+        }
+      } else {
+        throw new Error("Falha ao processar pagamento antecipado")
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao processar pagamento",
+        description: error instanceof Error ? error.message : "Erro desconhecido.",
+        variant: "destructive",
+      })
+    }
   }
 
   const getStatusBadge = (status: string, overdue: boolean) => {

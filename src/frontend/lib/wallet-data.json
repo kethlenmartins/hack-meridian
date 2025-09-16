@@ -1,0 +1,204 @@
+{
+  "farmers": {
+    "farmer_001": {
+      "id": "farmer_001",
+      "name": "João Silva Santos",
+      "email": "joao.silva@email.com",
+      "cpf": "123.456.789-00",
+      "phone": "(11) 99999-9999",
+      "location": "Zona Rural, Município de São João do Campo - SP",
+      "wallet": {
+        "balance": 45000,
+        "totalDebt": 52000,
+        "originalAmount": 50000,
+        "interestRate": 4,
+        "monthlyPayment": 2167,
+        "paidAmount": 8668,
+        "remainingAmount": 43332,
+        "nextPaymentDate": "2024-02-15",
+        "remainingMonths": 24,
+        "projectDescription": "Cultivo de hortaliças orgânicas para comercialização local, incluindo sistema de irrigação por gotejamento, estufa climatizada e equipamentos agrícolas modernos para aumentar a produtividade.",
+        "projectArea": "2,5 hectares",
+        "requestedAmount": 60000
+      },
+      "transactions": [
+        {
+          "id": "txn_001",
+          "type": "donation",
+          "amount": 15000,
+          "date": "2024-01-20",
+          "status": "completed",
+          "description": "Doação recebida - Maria Santos",
+          "reference": "DOA001238",
+          "donorName": "Maria Santos"
+        },
+        {
+          "id": "txn_002",
+          "type": "withdrawal",
+          "amount": 5000,
+          "date": "2024-01-15",
+          "status": "completed",
+          "description": "Saque para conta corrente",
+          "reference": "SAQ001234",
+          "bankAccount": "Banco do Brasil - Ag: 1234 Cc: 12345-6"
+        },
+        {
+          "id": "txn_003",
+          "type": "payment",
+          "amount": 2167,
+          "date": "2024-01-10",
+          "status": "completed",
+          "description": "Pagamento parcela #6",
+          "reference": "PAG001235",
+          "installmentId": 6
+        },
+        {
+          "id": "txn_004",
+          "type": "funding",
+          "amount": 10000,
+          "date": "2024-01-05",
+          "status": "completed",
+          "description": "Financiamento recebido - Investidor João Silva",
+          "reference": "FIN001236",
+          "investorName": "João Silva"
+        }
+      ],
+      "installments": [
+        {
+          "id": 1,
+          "dueDate": "2024-02-15",
+          "amount": 2167,
+          "interest": 167,
+          "principal": 2000,
+          "status": "pending",
+          "overdue": false
+        },
+        {
+          "id": 2,
+          "dueDate": "2024-03-15",
+          "amount": 2167,
+          "interest": 160,
+          "principal": 2007,
+          "status": "pending",
+          "overdue": false
+        },
+        {
+          "id": 3,
+          "dueDate": "2024-04-15",
+          "amount": 2167,
+          "interest": 153,
+          "principal": 2014,
+          "status": "pending",
+          "overdue": false
+        },
+        {
+          "id": 4,
+          "dueDate": "2024-01-15",
+          "amount": 2167,
+          "interest": 174,
+          "principal": 1993,
+          "status": "paid",
+          "overdue": false,
+          "paidDate": "2024-01-10"
+        },
+        {
+          "id": 5,
+          "dueDate": "2023-12-15",
+          "amount": 2167,
+          "interest": 181,
+          "principal": 1986,
+          "status": "paid",
+          "overdue": false,
+          "paidDate": "2023-12-12"
+        }
+      ]
+    },
+    "farmer_002": {
+      "id": "farmer_002",
+      "name": "Ana Paula Oliveira",
+      "email": "ana.oliveira@email.com",
+      "cpf": "987.654.321-00",
+      "phone": "(11) 88888-8888",
+      "location": "Zona Rural, Município de Campinas - SP",
+      "wallet": {
+        "balance": 32000,
+        "totalDebt": 38000,
+        "originalAmount": 35000,
+        "interestRate": 3.5,
+        "monthlyPayment": 1850,
+        "paidAmount": 5550,
+        "remainingAmount": 32450,
+        "nextPaymentDate": "2024-02-20",
+        "remainingMonths": 18,
+        "projectDescription": "Produção de frutas orgânicas com foco em agricultura sustentável e venda direta ao consumidor.",
+        "projectArea": "1,8 hectares",
+        "requestedAmount": 40000
+      },
+      "transactions": [
+        {
+          "id": "txn_005",
+          "type": "donation",
+          "amount": 12000,
+          "date": "2024-01-18",
+          "status": "completed",
+          "description": "Doação recebida - Carlos Lima",
+          "reference": "DOA001239",
+          "donorName": "Carlos Lima"
+        }
+      ],
+      "installments": [
+        {
+          "id": 1,
+          "dueDate": "2024-02-20",
+          "amount": 1850,
+          "interest": 120,
+          "principal": 1730,
+          "status": "pending",
+          "overdue": false
+        }
+      ]
+    }
+  },
+  "donors": {
+    "donor_001": {
+      "id": "donor_001",
+      "name": "Maria Santos",
+      "email": "maria.santos@email.com",
+      "cpf": "456.789.123-00",
+      "phone": "(11) 77777-7777",
+      "wallet": {
+        "balance": 25000
+      },
+      "donations": [
+        {
+          "id": "don_001",
+          "farmerId": "farmer_001",
+          "amount": 15000,
+          "date": "2024-01-20",
+          "status": "completed",
+          "message": "Apoiando a agricultura sustentável!"
+        }
+      ]
+    },
+    "donor_002": {
+      "id": "donor_002",
+      "name": "Carlos Lima",
+      "email": "carlos.lima@email.com",
+      "cpf": "789.123.456-00",
+      "phone": "(11) 66666-6666",
+      "wallet": {
+        "balance": 18000
+      },
+      "donations": [
+        {
+          "id": "don_002",
+          "farmerId": "farmer_002",
+          "amount": 12000,
+          "date": "2024-01-18",
+          "status": "completed",
+          "message": "Sucesso no seu projeto!"
+        }
+      ]
+    }
+  }
+}
