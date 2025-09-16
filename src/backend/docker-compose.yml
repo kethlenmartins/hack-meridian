@@ -59,6 +59,24 @@ services:
     networks:
       - farm-investment-network
 
+  # Serviço de Integração com Smart Contracts Stellar
+  stellar-contract-service:
+    build:
+      context: ./smart-contract-integration
+      dockerfile: Dockerfile
+    container_name: farm-investment-stellar-contract-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - STELLAR_NETWORK=${STELLAR_NETWORK:-testnet}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - TRANSACTION_TIMEOUT=${TRANSACTION_TIMEOUT:-300}
+    ports:
+      - "3004:3004"
+    networks:
+      - farm-investment-network
+
 networks:
   farm-investment-network:
     driver: bridge
