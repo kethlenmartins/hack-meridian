@@ -1,0 +1,38 @@
+services:
+  # Serviço de Agricultores (com upload de arquivos integrado)
+  farmer-service:
+    build:
+      context: ./farmer-service
+      dockerfile: Dockerfile
+    container_name: farm-investment-farmer-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_STORAGE_BUCKET=${SUPABASE_STORAGE_BUCKET}
+    ports:
+      - "3001:3001"
+    networks:
+      - farm-investment-network
+
+  # Serviço de Investidores
+  investor-service:
+    build:
+      context: ./investor-service
+      dockerfile: Dockerfile
+    container_name: farm-investment-investor-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3002:3002"
+    networks:
+      - farm-investment-network
+
+networks:
+  farm-investment-network:
+    driver: bridge
