@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Farmer, FarmerAddress } from '../../entities/farmer.entity';
 import { FarmerRepository } from '../../repositories/farmer.repository';
 import { UpdateFarmerDto } from '../../../application/dto/update-farmer.dto';
 
 @Injectable()
 export class UpdateFarmerUseCase {
-  constructor(private readonly farmerRepository: FarmerRepository) {}
+  constructor(
+    @Inject('FarmerRepository')
+    private readonly farmerRepository: FarmerRepository,
+  ) {}
 
   async execute(id: string, updateFarmerDto: UpdateFarmerDto): Promise<Farmer> {
     // Find existing farmer

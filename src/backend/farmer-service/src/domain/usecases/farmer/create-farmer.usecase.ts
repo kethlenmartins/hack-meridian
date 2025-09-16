@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Farmer, FarmerAddress } from '../../entities/farmer.entity';
 import { FarmerRepository } from '../../repositories/farmer.repository';
 import { CreateFarmerDto } from '../../../application/dto/create-farmer.dto';
 
 @Injectable()
 export class CreateFarmerUseCase {
-  constructor(private readonly farmerRepository: FarmerRepository) {}
+  constructor(
+    @Inject('FarmerRepository')
+    private readonly farmerRepository: FarmerRepository,
+  ) {}
 
   async execute(createFarmerDto: CreateFarmerDto): Promise<Farmer> {
     // Check if farmer already exists

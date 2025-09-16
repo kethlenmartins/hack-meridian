@@ -1,33 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../infrastructure/supabase/supabase.service';
-import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FilesService {
-  private readonly bucketName: string;
-
-  constructor(
-    private readonly supabaseService: SupabaseService,
-    private readonly configService: ConfigService,
-  ) {
-    this.bucketName = this.configService.get<string>('SUPABASE_STORAGE_BUCKET') || 'farmer-files';
-  }
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   async uploadFile(file: Express.Multer.File) {
     const fileExtension = file.originalname.split('.').pop();
     const fileName = `${uuidv4()}.${fileExtension}`;
     const filePath = `uploads/${fileName}`;
+    const bucketName = this.supabaseService.getBucketName();
 
-    await this.supabaseService.uploadFile(
-      this.bucketName,
+    const uploadResult = await this.supabaseService.uploadFile(
+      bucketName,
       filePath,
       file.buffer,
       file.mimetype,
     );
 
     const publicUrl = await this.supabaseService.getPublicUrl(
-      this.bucketName,
+      bucketName,
       filePath,
     );
 
@@ -37,15 +30,81 @@ export class FilesService {
       publicUrl,
       size: file.size,
       mimeType: file.mimetype,
+      etag: uploadResult.etag,
+      versionId: uploadResult.versionId,
     };
   }
 
   async getFileUrl(path: string) {
-    return this.supabaseService.getPublicUrl(this.bucketName, path);
+    const bucketName = this.supabaseService.getBucketName();
+    return this.supabaseService.getPublicUrl(bucketName, path);
   }
 
   async deleteFile(path: string) {
-    await this.supabaseService.deleteFile(this.bucketName, path);
-    return { message: 'File deleted successfully' };
+    const bucketName = this.supabaseService.getBucketName();
+    return this.supabaseService.deleteFile(bucketName, path);
+  }
+
+  // Method to upload farmer documents (certificates, photos, etc.)
+  async uploadFarmerDocument(farmerId: string, file: Express.Multer.File, documentType: string) {
+    const fileExtension = file.originalname.split('.').pop();
+    const fileName = `${farmerId}_${documentType}_${Date.now()}.${fileExtension}`;
+    const filePath = `farmers/${farmerId}/documents/${fileName}`;
+    const bucketName = this.supabaseService.getBucketName();
+
+    const uploadResult = await this.supabaseService.uploadFile(
+      bucketName,
+      filePath,
+      file.buffer,
+      file.mimetype,
+    );
+
+    const publicUrl = await this.supabaseService.getPublicUrl(
+      bucketName,
+      filePath,
+    );
+
+    return {
+      fileName,
+      filePath,
+      publicUrl,
+      size: file.size,
+      mimeType: file.mimetype,
+      documentType,
+      farmerId,
+      etag: uploadResult.etag,
+      versionId: uploadResult.versionId,
+    };
+  }
+
+  // Method to upload farm photos
+  async uploadFarmPhoto(farmId: string, file: Express.Multer.File) {
+    const fileExtension = file.originalname.split('.').pop();
+    const fileName = `farm_${farmId}_${Date.now()}.${fileExtension}`;
+    const filePath = `farms/${farmId}/photos/${fileName}`;
+    const bucketName = this.supabaseService.getBucketName();
+
+    const uploadResult = await this.supabaseService.uploadFile(
+      bucketName,
+      filePath,
+      file.buffer,
+      file.mimetype,
+    );
+
+    const publicUrl = await this.supabaseService.getPublicUrl(
+      bucketName,
+      filePath,
+    );
+
+    return {
+      fileName,
+      filePath,
+      publicUrl,
+      size: file.size,
+      mimeType: file.mimetype,
+      farmId,
+      etag: uploadResult.etag,
+      versionId: uploadResult.versionId,
+    };
   }
 }
