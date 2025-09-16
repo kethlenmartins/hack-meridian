@@ -1,0 +1,82 @@
+services:
+  # Serviço de Agricultores (com upload de arquivos integrado)
+  farmer-service:
+    build:
+      context: ./farmer-service
+      dockerfile: Dockerfile
+    container_name: farm-investment-farmer-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_STORAGE_BUCKET=${SUPABASE_STORAGE_BUCKET}
+      - SUPABASE_STORAGE_ENDPOINT=${SUPABASE_STORAGE_ENDPOINT}
+      - SUPABASE_STORAGE_REGION=${SUPABASE_STORAGE_REGION}
+      - SUPABASE_STORAGE_ACCESS_KEY_ID=${SUPABASE_STORAGE_ACCESS_KEY_ID}
+      - SUPABASE_STORAGE_SECRET_ACCESS_KEY=${SUPABASE_STORAGE_SECRET_ACCESS_KEY}
+    ports:
+      - "3001:3001"
+    networks:
+      - farm-investment-network
+
+  # Serviço de Investidores
+  investor-service:
+    build:
+      context: ./investor-service
+      dockerfile: Dockerfile
+    container_name: farm-investment-investor-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3002:3002"
+    networks:
+      - farm-investment-network
+
+  # Serviço de Notificações
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: farm-investment-notification-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - EMAILJS_PUBLIC_KEY=${EMAILJS_PUBLIC_KEY}
+      - EMAILJS_SERVICE_ID=${EMAILJS_SERVICE_ID}
+      - EMAILJS_TEMPLATE_ID=${EMAILJS_TEMPLATE_ID}
+      - EMAILJS_PRIVATE_KEY=${EMAILJS_PRIVATE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    ports:
+      - "3003:3003"
+    networks:
+      - farm-investment-network
+
+  # Serviço de Integração com Smart Contracts Stellar
+  stellar-contract-service:
+    build:
+      context: ./smart-contract-integration
+      dockerfile: Dockerfile
+    container_name: farm-investment-stellar-contract-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - STELLAR_NETWORK=${STELLAR_NETWORK:-testnet}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - TRANSACTION_TIMEOUT=${TRANSACTION_TIMEOUT:-300}
+    ports:
+      - "3004:3004"
+    networks:
+      - farm-investment-network
+
+networks:
+  farm-investment-network:
+    driver: bridge
