@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import * as emailjs from '@emailjs/nodejs';
 
 export interface EmailData {
   to: string;
@@ -14,77 +14,16 @@ export interface EmailData {
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private transporter: nodemailer.Transporter;
-  private readonly emailProvider: string;
+  private readonly emailJsPublicKey: string | undefined;
+  private readonly emailJsPrivateKey: string | undefined;
+  private readonly emailJsServiceId: string | undefined;
+  private readonly emailJsTemplateId: string | undefined;
 
   constructor(private readonly configService: ConfigService) {
-    this.emailProvider = this.configService.get<string>('EMAIL_PROVIDER') || 'ethereal';
-    this.setupTransporter();
-  }
-
-  private setupTransporter() {
-    const provider = this.emailProvider.toLowerCase();
-
-    switch (provider) {
-      case 'sendgrid':
-        this.setupSendGrid();
-        break;
-      case 'gmail':
-        this.setupGmail();
-        break;
-      case 'ethereal':
-      default:
-        this.setupEthereal();
-        break;
-    }
-  }
-
-  private setupSendGrid() {
-    const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
-    if (!apiKey) {
-      this.logger.warn('SendGrid API key not configured. Falling back to Ethereal.');
-      this.setupEthereal();
-      return;
-    }
-
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      secure: false,
-      auth: {
-        user: 'apikey',
-        pass: apiKey,
-      },
-    });
-  }
-
-  private setupGmail() {
-    const user = this.configService.get<string>('GMAIL_USER');
-    const pass = this.configService.get<string>('GMAIL_APP_PASSWORD');
-    
-    if (!user || !pass) {
-      this.logger.warn('Gmail credentials not configured. Falling back to Ethereal.');
-      this.setupEthereal();
-      return;
-    }
-
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: user,
-        pass: pass,
-      },
-    });
-  }
-
-  private setupEthereal() {
-    // Modo de desenvolvimento - simula envio sem SMTP real
-    this.transporter = nodemailer.createTransport({
-      streamTransport: true,
-      newline: 'unix',
-      buffer: true
-    });
-    this.logger.log('Using Development Mode - emails will be logged, not sent');
+    this.emailJsPublicKey = this.configService.get<string>('EMAILJS_PUBLIC_KEY');
+    this.emailJsPrivateKey = this.configService.get<string>('EMAILJS_PRIVATE_KEY');
+    this.emailJsServiceId = this.configService.get<string>('EMAILJS_SERVICE_ID');
+    this.emailJsTemplateId = this.configService.get<string>('EMAILJS_TEMPLATE_ID');
   }
 
   async sendEmail(emailData: EmailData): Promise<void> {
@@ -92,102 +31,37 @@ export class EmailService {
       const fromName = emailData.fromName || 'Farm Investment Platform';
       const toName = emailData.toName || emailData.to.split('@')[0];
 
-      // Template HTML baseado no seu template do EmailJS
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>${emailData.subject}</title>
-            <style>
-                body { 
-                    font-family: Arial, sans-serif; 
-                    line-height: 1.6; 
-                    color: #333; 
-                    max-width: 600px; 
-                    margin: 0 auto; 
-                    padding: 20px; 
-                    background-color: #f5f5f5;
-                }
-                .email-container {
-                    background-color: white;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                .header { 
-                    background-color: #2c5530; 
-                    color: white; 
-                    padding: 20px; 
-                    text-align: center; 
-                    border-radius: 8px 8px 0 0; 
-                }
-                .header h1 {
-                    margin: 0;
-                    font-size: 24px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                }
-                .content { 
-                    background-color: #f9f9f9; 
-                    padding: 30px; 
-                    border-radius: 0 0 8px 8px; 
-                }
-                .content h2 {
-                    color: #2c5530;
-                    margin-top: 0;
-                }
-                .footer { 
-                    margin-top: 20px; 
-                    padding-top: 20px; 
-                    border-top: 1px solid #ddd; 
-                    font-size: 12px; 
-                    color: #666; 
-                }
-            </style>
-        </head>
-        <body>
-            <div class="email-container">
-                <div class="header">
-                    <h1>🌱 Farm Investment Platform</h1>
-                </div>
-                <div class="content">
-                    <h2>Olá ${toName}!</h2>
-                    <p>${emailData.content.replace(/\n/g, '<br>')}</p>
-                    <p><em>Esta é uma notificação automática do sistema Farm Investment Platform.</em></p>
-                    <div class="footer">
-                        <p>Atenciosamente,<br><strong>${fromName}</strong><br>Farm Investment Platform</p>
-                        <p><small>Este é um email automático, por favor não responda.</small></p>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-      `;
-
-      const mailOptions = {
-        from: `"${fromName}" <noreply@farminvestment.com>`,
-        to: emailData.to,
-        subject: emailData.subject,
-        html: htmlContent,
-      };
-
-      const info = await this.transporter.sendMail(mailOptions);
-      
-      if (this.emailProvider === 'ethereal') {
-        // Modo de desenvolvimento - loga o email
-        this.logger.log(`📧 EMAIL SIMULADO (Development Mode):`);
-        this.logger.log(`   To: ${emailData.to}`);
-        this.logger.log(`   Subject: ${emailData.subject}`);
-        this.logger.log(`   Content: ${emailData.content}`);
-        this.logger.log(`   HTML Preview: ${htmlContent.substring(0, 200)}...`);
-      } else {
-        this.logger.log(`Email sent successfully to ${emailData.to}. Message ID: ${info.messageId}`);
+      if (!this.emailJsPublicKey || !this.emailJsServiceId || !this.emailJsTemplateId) {
+        this.logger.error('EmailJS configuration missing. Ensure EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID are set.');
+        throw new Error('EmailJS configuration missing');
       }
+
+      const templateParams = {
+        to_email: emailData.to,
+        to_name: toName,
+        from_name: fromName,
+        subject: emailData.subject,
+        message: emailData.content,
+        ...(emailData.templateData || {}),
+      } as Record<string, any>;
+
+      const response = await emailjs.send(
+        this.emailJsServiceId,
+        this.emailJsTemplateId,
+        templateParams,
+        {
+          publicKey: this.emailJsPublicKey,
+          privateKey: this.emailJsPrivateKey,
+        },
+      );
+
+      this.logger.log(`EmailJS: Email enviado para ${emailData.to}. Status: ${response.status}`);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${emailData.to}:`, error);
+      const safeError = typeof error === 'object' ? JSON.stringify(error) : String(error);
+      // Tente extrair campos comuns
+      const message = (error as any)?.message || (error as any)?.text || safeError;
+      const status = (error as any)?.status;
+      this.logger.error(`Failed to send email to ${emailData.to}: ${message}${status ? ` (status ${status})` : ''}`);
       throw error;
     }
   }
@@ -198,13 +72,11 @@ export class EmailService {
   }
 
   async verifyConnection(): Promise<boolean> {
-    try {
-      await this.transporter.verify();
-      this.logger.log(`${this.emailProvider.toUpperCase()} SMTP connection verified successfully`);
-      return true;
-    } catch (error) {
-      this.logger.error(`${this.emailProvider.toUpperCase()} SMTP connection verification failed:`, error);
-      return false;
+    // Com EmailJS não há conexão persistente; validamos presença de variáveis
+    const hasConfig = Boolean(this.emailJsPublicKey && this.emailJsServiceId && this.emailJsTemplateId);
+    if (!hasConfig) {
+      this.logger.warn('EmailJS not fully configured. Missing one or more variables.');
     }
+    return hasConfig;
   }
 }
