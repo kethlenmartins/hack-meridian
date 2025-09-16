@@ -222,7 +222,7 @@ export default function FarmerWalletPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-red-600">R$ {walletData.totalDebt.toLocaleString()}</div>
-                <p className="text-xs text-green-500">{walletData.interestRate}% ao ano</p>
+                <p className="text-xs text-green-500">{walletData.interestRate}% sobre o valor</p>
               </CardContent>
             </Card>
 
@@ -497,7 +497,7 @@ export default function FarmerWalletPage() {
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-green-700">Taxa de Juros</Label>
-                        <p className="text-lg font-bold text-green-800">{walletData.interestRate}% a.a.</p>
+                        <p className="text-lg font-bold text-green-800">{walletData.interestRate}% sobre o valor</p>
                       </div>
                     </div>
 

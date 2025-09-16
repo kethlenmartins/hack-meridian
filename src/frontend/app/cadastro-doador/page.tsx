@@ -180,12 +180,11 @@ export default function CadastroDoadrPage() {
                           Investimento (Com Retorno)
                         </Label>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Invista e receba retorno de <strong>10% ao ano</strong> em <strong>2 anos</strong>. Ajude
-                          agricultores enquanto faz seu dinheiro crescer.
+                          Invista e receba seu dinheiro de volta em <strong>2 anos</strong>. Ajude
+                          agricultores e a economia do Brasil.
                         </p>
                         <div className="flex items-center gap-1 mt-2 text-xs text-primary">
                           <Info className="h-3 w-3" />
-                          <span>Taxa de administração: 2% sobre o retorno</span>
                         </div>
                       </div>
                     </div>
@@ -194,23 +193,34 @@ export default function CadastroDoadrPage() {
 
                 {/* Terms */}
                 <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="terms"
-                    checked={formData.acceptTerms}
-                    onCheckedChange={(checked) => setFormData({ ...formData, acceptTerms: checked as boolean })}
-                  />
-                  <Label htmlFor="terms" className="text-sm leading-relaxed">
-                    Concordo com os{" "}
-                    <Link href="/termos" className="text-primary hover:underline">
+                <Checkbox
+                  id="terms"
+                  checked={formData.acceptTerms}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, acceptTerms: checked as boolean })
+                  }
+                  className="border border-gray-300 rounded data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                />
+                <label
+                  htmlFor="terms"
+                  className="flex items-start gap-3 cursor-pointer w-full"
+                >
+                  {/* o span precisa ser flex-1 + min-w-0 para ocupar todo o espaço restante e quebrar corretamente */}
+                  <span className="flex-1 min-w-0 text-sm leading-relaxed">
+                    Concordo com os
+                    <a className="text-primary hover:underline mx-1" href="/termos">
                       Termos de Uso
-                    </Link>{" "}
-                    e{" "}
-                    <Link href="/privacidade" className="text-primary hover:underline">
+                    </a>
+                    e
+                    <a className="text-primary hover:underline mx-1" href="/privacidade">
                       Política de Privacidade
-                    </Link>
+                    </a>
                     , e estou ciente das taxas aplicáveis.
-                  </Label>
-                </div>
+                  </span>
+                </label>
+              </div>
+
+
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Criando conta..." : "Criar Conta"}

@@ -130,7 +130,6 @@ export default function DonorWalletPage() {
                     <div className="text-2xl font-bold text-green-800">
                       R$ {walletData.expectedReturn.toLocaleString()}
                     </div>
-                    <p className="text-xs text-green-500">Em 2 anos (10% a.a.)</p>
                   </CardContent>
                 </Card>
 

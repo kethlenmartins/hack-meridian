@@ -202,7 +202,7 @@ export default function CadastroAgricultorPage() {
                         <p className="font-medium mb-1">Condições do Financiamento:</p>
                         <ul className="space-y-1 text-muted-foreground">
                           <li>
-                            • Taxa de juros: <strong>4% ao ano</strong>
+                            • Taxa de juros: <strong>6,5% sobre o valor.</strong>
                           </li>
                           <li>
                             • Prazo: <strong>2 anos</strong> para pagamento
@@ -216,23 +216,34 @@ export default function CadastroAgricultorPage() {
 
                 {/* Terms */}
                 <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="terms"
-                    checked={formData.acceptTerms}
-                    onCheckedChange={(checked) => setFormData({ ...formData, acceptTerms: checked as boolean })}
-                  />
-                  <Label htmlFor="terms" className="text-sm leading-relaxed">
-                    Concordo com os{" "}
-                    <Link href="/termos" className="text-primary hover:underline">
+                <Checkbox
+                  id="terms"
+                  checked={formData.acceptTerms}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, acceptTerms: checked as boolean })
+                  }
+                  className="border border-gray-300 rounded data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                />
+                <label
+                  htmlFor="terms"
+                  className="flex items-start gap-3 cursor-pointer w-full"
+                >
+                  {/* o span precisa ser flex-1 + min-w-0 para ocupar todo o espaço restante e quebrar corretamente */}
+                  <span className="flex-1 min-w-0 text-sm leading-relaxed">
+                    Concordo com os
+                    <a className="text-primary hover:underline mx-1" href="/termos">
                       Termos de Uso
-                    </Link>{" "}
-                    e{" "}
-                    <Link href="/privacidade" className="text-primary hover:underline">
+                    </a>
+                    e
+                    <a className="text-primary hover:underline mx-1" href="/privacidade">
                       Política de Privacidade
-                    </Link>
-                    , e confirmo que aceito a taxa de contratação de 4% ao ano.
-                  </Label>
-                </div>
+                    </a>
+                    , e estou ciente das taxas aplicáveis.
+                  </span>
+                </label>
+              </div>
+
+                  
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Formalizando pedido..." : "Formalizar Pedido de Crédito"}

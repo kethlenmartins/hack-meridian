@@ -74,8 +74,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold mb-2">1. Invista ou Doe</h3>
               <p className="text-muted-foreground">
-                Escolha apoiar agricultores através de doações (sem retorno) ou investimentos (com retorno de 10% ao
-                ano)
+                Escolha apoiar agricultores através de doações (sem retorno) ou investimentos (com retorno).
               </p>
             </div>
 
@@ -202,16 +201,16 @@ export default function LandingPage() {
 
             <div className="text-center">
               <Users className="h-12 w-12 text-accent mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Anonimato Total</h3>
+              <h3 className="text-xl font-semibold mb-2">Possibilidade de anonimato</h3>
               <p className="text-muted-foreground">
-                Doadores e agricultores não se conhecem, garantindo privacidade para todos
+                Doadores e agricultores não se conhecem, garantindo privacidade para todos.
               </p>
             </div>
 
             <div className="text-center">
               <TrendingUp className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Retorno Atrativo</h3>
-              <p className="text-muted-foreground">Investimentos com retorno de 10% ao ano em 2 anos</p>
+              <h3 className="text-xl font-semibold mb-2">Retorno</h3>
+              <p className="text-muted-foreground">Investimentos com retorno de em 2 anos</p>
             </div>
           </div>
         </div>

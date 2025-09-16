@@ -79,7 +79,6 @@ export default function InvestPage() {
                   <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
                     <p className="text-sm text-emerald-600">Retorno esperado em 2 anos</p>
                     <p className="text-xl font-bold text-emerald-700">R$ {(amount[0] * 1.21).toLocaleString()}</p>
-                    <p className="text-xs text-emerald-500">10% ao ano</p>
                   </div>
                 )}
 
@@ -143,7 +142,6 @@ export default function InvestPage() {
                       </div>
                       <div>
                         <p className="font-medium text-green-800">Investimento</p>
-                        <p className="text-sm text-green-600">Receba retorno de 10% ao ano</p>
                         <p className="text-xs text-green-500">Prazo: 24 meses</p>
                       </div>
                     </Label>
@@ -276,10 +274,6 @@ export default function InvestPage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-green-700">Retorno mensal médio</span>
                         <span className="font-medium text-green-800">R$ {monthlyReturn.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-green-700">Taxa de retorno</span>
-                        <span className="font-medium text-emerald-600">10% ao ano</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-green-700">Prazo</span>

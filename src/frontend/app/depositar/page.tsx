@@ -154,20 +154,8 @@ export default function DepositPage() {
                         <TrendingUp className="h-6 w-6 text-white" />
                       </div>
                       <CardTitle className="text-green-800">Investir</CardTitle>
-                      <CardDescription className="text-green-600">Ajude agricultores e receba retorno</CardDescription>
+                      <CardDescription className="text-green-600">Incentive a agricultura familiar</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="text-center p-3 bg-white/70 rounded-lg">
-                        <p className="text-sm text-green-600">Retorno esperado</p>
-                        <p className="text-xl font-bold text-green-700">10% ao ano</p>
-                      </div>
-                      <ul className="text-sm text-green-600 space-y-1">
-                        <li>• Receba seu dinheiro de volta com juros</li>
-                        <li>• Prazo de 24 meses</li>
-                        <li>• Distribuição anônima</li>
-                        <li>• Impacto social + retorno financeiro</li>
-                      </ul>
-                    </CardContent>
                   </Card>
 
                   {/* Donation Option */}
